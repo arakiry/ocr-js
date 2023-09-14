@@ -16,13 +16,11 @@ import './App.css';
 //   return text;
 // };
 
-const doOCR = async (imageUrl) => {
-  const worker = await createWorker({
-    // logger: m => console.log(m),
-  });
-  await worker.loadLanguage('eng');
-  await worker.initialize('eng');
+const doOCR = async (worker, imageUrl) => {
+  const start = performance.now();
   const { data: { text, blocks } } = await worker.recognize(imageUrl);
+  const end = performance.now();
+  console.log(end - start);
   console.log(text);
   console.log(blocks);
   return text;
@@ -30,10 +28,18 @@ const doOCR = async (imageUrl) => {
 
 function App() {
   const [ocr, setOcr] = useState('Recognizing...');
+  
   useEffect(() => {
     (async() => {
-      doOCR('https://tesseract.projectnaptha.com/img/eng_bw.png').then((text) => { setOcr(text); });
-      // readImage('https://tesseract.projectnaptha.com/img/eng_bw.png').then((text) => { setOcr(text); });
+      const worker = await createWorker({
+        // logger: m => console.log(m),
+      });
+      await worker.loadLanguage('jpn');
+      await worker.initialize('jpn');
+
+      // doOCR(worker, 'https://tesseract.projectnaptha.com/img/eng_bw.png').then((text) => { setOcr(text); });
+      doOCR(worker, '/sample1.png').then((text) => { setOcr(text); });
+      // readImage(worker, 'https://tesseract.projectnaptha.com/img/eng_bw.png').then((text) => { setOcr(text); });
     })();
   }, [ocr]);
   return (
